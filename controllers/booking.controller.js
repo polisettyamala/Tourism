@@ -9,7 +9,6 @@ export const createbooking=async(req,res)=>{
     const user=await User.findById(userId)
     const userEmail=user.email
     const fullName=req.name
-    console.log(fullName,"fullname...")
     
     try {
         let bookings=new booking({
@@ -69,8 +68,20 @@ export const getAllBookings=async(req,res,next)=>{
 
 export const deleteBookingId=async(req,res,next)=>{
     const bookingId=req.params.id
+   
+        if(!mongoose.Types.ObjectId.isValid(bookingId)){
+            return res.status(400).json({
+                success:false,
+                message:"Invalid booking ID format"
+            })
+        }
     try {
         const book=await booking.findById(bookingId)
+        if(!book){
+           return res.status(404).json({
+            success:false,message:"Booking not found",
+           })
+        }
         await booking.findByIdAndDelete(bookingId)
 
         return res.status(200).json({success:true,message:"deleted successfully",data:book})
@@ -78,10 +89,13 @@ export const deleteBookingId=async(req,res,next)=>{
         return res.status(500).json({success:false,message:"server Error"})
     }
 }
-
+ 
 
 export const cancelBooking=async(req,res,next)=>{
     const cancelId=req.params.bookingId
+    if(!mongoose.Types.ObjectId.isValid(cancelId)){
+        return res.status(400).json({success:false,message:"Invalid booking ID"})
+    }
 
     try {
         const cancelBookingId=await booking.findById(cancelId)
@@ -94,14 +108,3 @@ export const cancelBooking=async(req,res,next)=>{
         return res.status(500).json({success:false,message:"server Error"})
     }
 }
-
-
-// export const deleteAllBookings=async(req,res,next)=>{
-//     const bookings=req.params
-
-//     try {
-//         const 
-//     } catch (error) {
-        
-//     }
-// }
